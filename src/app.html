@@ -38,7 +38,11 @@
         <h2>Recommended</h2>
 
         <div class="recommended">
-          <div v-for="(product, index) in inventory.slice(0,3)" :key="product.id" class="card">
+          <div
+            v-for="(product, index) in inventory.slice(0,3)"
+            :key="product.id"
+            class="card"
+          >
             <div class="card-title">{{product.name}}</div>
             <div class="card-body">
               <i class="icofont-10x icofont-carrot"></i>
@@ -68,7 +72,10 @@
               </form>
             </div>
             <div class="card-footer">
-              <button @click="addToCart(product.name)" class="btn btn-light">
+              <button
+                @click="addToCart(product.name, index)"
+                class="btn btn-light"
+              >
                 Add to cart
               </button>
             </div>
@@ -88,16 +95,13 @@
           return {
             showSidebar: false,
             inventory: [],
-            cart: {
-              carrots: 0,
-              pineapples: 0,
-              cherries: 0,
-            },
+            cart: {},
           };
         },
         methods: {
-          addToCart(type) {
-            this.cart[type] += this.inventory[type];
+          addToCart(name, index) {
+            if (!this.cart[name]) this.cart[name] = 0;
+            this.cart[name] += this.inventory[index].quantity;
           },
           toggleSidebar() {
             this.showSidebar = !this.showSidebar;
