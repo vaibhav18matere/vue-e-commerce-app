@@ -83,7 +83,12 @@
         </div>
       </main>
 
-      <sidebar v-if="showSidebar" :toggle="toggleSidebar" :cart="cart" />
+      <sidebar
+        v-if="showSidebar"
+        :toggle="toggleSidebar"
+        :cart="cart"
+        :inventory="inventory"
+      />
 
       <footer></footer>
     </div>
@@ -115,12 +120,23 @@
       });
 
       app.component("sidebar", {
-        props: ["toggle", "cart"],
-        computed: {
-          cartTotal() {
-            return (this.cart.carrots * 3).toFixed(2);
+        props: ["toggle", "cart", "inventory"],
+        computed: {},
+        methods: {
+          getPrice(name) {
+            const product = this.inventory.find((elm) => {
+              return elm.name === name;
+            });
+            return product.price.INR;
+          },
+          calculateTotal() {
+            const total = Object.entries(this.cart).reduce((acc, curr, i) => {
+              return acc + curr[1] * this.getPrice(curr[0]);
+            }, 0);
+            return total.toFixed(2);
           },
         },
+
         template: `
               <aside class="cart-container">
         <div class="cart">
@@ -145,12 +161,12 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
+                <tr v-for="(quantity, key, i) in cart" :key="i">
                   <td><i class="icofont-carrot icofont-3x"></i></td>
-                  <td>Carrot</td>
-                  <td>₹ 3</td>
-                  <td class="center">{{cart.carrots}}</td>
-                  <td>₹ {{cart.carrots*3}}</td>
+                  <td>{{key}}</td>
+                  <td>₹ {{getPrice(key)}}</td>
+                  <td class="center">{{quantity}}</td>
+                  <td>₹ {{quantity * getPrice(key)}}</td>
                   <td class="center">
                     <button class="btn btn-light cart-remove">
                       &times;
@@ -160,9 +176,9 @@
               </tbody>
             </table>
 
-            <p class="center"><em>No items in cart</em></p>
+            <p v-if="!Object.keys(cart).length" class="center"><em>No items in cart</em></p>
             <div class="spread">
-              <span><strong>Total :</strong> ₹ {{cartTotal}}</span>
+              <span><strong>Total :</strong> ₹ {{calculateTotal()}}</span>
               <button class="btn btn-light">Checkout</button>
             </div>
           </div>
